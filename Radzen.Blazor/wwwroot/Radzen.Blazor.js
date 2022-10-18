@@ -747,60 +747,138 @@ window.Radzen = {
 
     popup.style.display = 'block';
 
-    var rect = popup.getBoundingClientRect();
+    if (popup.classList.contains("rz-tooltip")) {
 
-    var smartPosition = !position || position == 'bottom';
-
-    if (smartPosition && top + rect.height > window.innerHeight && parentRect.top > rect.height) {
-      top = parentRect.top - rect.height;
-
-      if (position) {
-        top = top - 40;
         var tooltipContent = popup.children[0];
-        var tooltipContentClassName = 'rz-' + position + '-tooltip-content';
-        if (tooltipContent.classList.contains(tooltipContentClassName)) {
-          tooltipContent.classList.remove(tooltipContentClassName);
-          tooltipContent.classList.add('rz-top-tooltip-content');
+        var rect = tooltipContent.getBoundingClientRect();
+
+        function testRectVisible() {
+            return left > 0 &&
+                (left + rect.width) < window.innerWidth &&
+                top > 0 &&
+                (top + rect.height) < window.innerHeight;
         }
-      }
+        function testLeft() {
+            left = parentRect.left - rect.width - 5;
+            top = parentRect.top;
+            return testRectVisible();
+        }
+        function testRight() {
+            left = parentRect.right + 5;
+            top = parentRect.top;
+            return testRectVisible();
+        }
+        function testTop() {
+            top = parentRect.top - rect.height - 5;
+            left = parentRect.left;
+            return testRectVisible();
+        }
+        function testBottom() {
+            top = parentRect.bottom + 13;
+            left = parentRect.left;
+            return testRectVisible();
+        }
+        function switchClassName(newPosition) {
+
+            tooltipContent.classList.remove('rz-left-tooltip-content');
+            tooltipContent.classList.remove('rz-right-tooltip-content');
+            tooltipContent.classList.remove('rz-top-tooltip-content');
+            tooltipContent.classList.remove('rz-bottom-tooltip-content');
+
+            tooltipContent.classList.add('rz-' + newPosition + '-tooltip-content');
+        }
+
+        if (!position)
+            position = 'bottom';
+
+        let ok = false;
+        if (position == 'left')
+            ok = testLeft();
+
+        if (position == 'right')
+            ok = testRight();
+
+        if (position == 'top')
+            ok = testTop();
+
+        if (position == 'bottom')
+            ok = testBottom();
+
+        let newPosition;
+        if (!ok && !newPosition && testLeft())
+            newPosition = 'left';
+        if (!ok && !newPosition && testRight())
+            newPosition = 'right';
+        if (!ok && !newPosition && testTop())
+            newPosition = 'top';
+        if (!ok && !newPosition && testBottom())
+            newPosition = 'bottom';
+        if (!ok && !newPosition) {
+            testLeft();
+            newPosition = 'left';
+        }
+
+
+        if (newPosition)
+            switchClassName(newPosition);
+        else
+            switchClassName(position);
     }
+    else {
+        var rect = popup.getBoundingClientRect();
 
-    if (smartPosition && left + rect.width > window.innerWidth && window.innerWidth > rect.width) {
-      left = window.innerWidth - rect.width;
+        var smartPosition = !position || position == 'bottom';
 
-      if (position) {
-        var tooltipContent = popup.children[0];
-        var tooltipContentClassName = 'rz-' + position + '-tooltip-content';
-        if (tooltipContent.classList.contains(tooltipContentClassName)) {
-          tooltipContent.classList.remove(tooltipContentClassName);
-          tooltipContent.classList.add('rz-left-tooltip-content');
+        if (smartPosition && top + rect.height > window.innerHeight && parentRect.top > rect.height) {
+          top = parentRect.top - rect.height;
+
+          if (position) {
+            top = top - 40;
+            var tooltipContent = popup.children[0];
+            var tooltipContentClassName = 'rz-' + position + '-tooltip-content';
+            if (tooltipContent.classList.contains(tooltipContentClassName)) {
+              tooltipContent.classList.remove(tooltipContentClassName);
+              tooltipContent.classList.add('rz-top-tooltip-content');
+            }
+          }
+        }
+
+        if (smartPosition && left + rect.width > window.innerWidth && window.innerWidth > rect.width) {
+          left = window.innerWidth - rect.width;
+
+          if (position) {
+            var tooltipContent = popup.children[0];
+            var tooltipContentClassName = 'rz-' + position + '-tooltip-content';
+            if (tooltipContent.classList.contains(tooltipContentClassName)) {
+              tooltipContent.classList.remove(tooltipContentClassName);
+              tooltipContent.classList.add('rz-left-tooltip-content');
+              left = parentRect.left - rect.width - 5;
+              top = parentRect.top - parentRect.height;
+            }
+          }
+        }
+
+        if (smartPosition) {
+          if (position) {
+            top = top + 20;
+          }
+        }
+
+        if (position == 'left') {
           left = parentRect.left - rect.width - 5;
-          top = parentRect.top - parentRect.height;
+          top =  parentRect.top;
         }
-      }
-    }
 
-    if (smartPosition) {
-      if (position) {
-        top = top + 20;
-      }
-    }
+        if (position == 'right') {
+          left = parentRect.right + 10;
+          top = parentRect.top;
+        }
 
-    if (position == 'left') {
-      left = parentRect.left - rect.width - 5;
-      top =  parentRect.top;
+        if (position == 'top') {
+          top = parentRect.top - rect.height + 5;
+          left = parentRect.left;
+        }
     }
-
-    if (position == 'right') {
-      left = parentRect.right + 10;
-      top = parentRect.top;
-    }
-
-    if (position == 'top') {
-      top = parentRect.top - rect.height + 5;
-      left = parentRect.left;
-    }
-
     popup.style.zIndex = 2000;
     popup.style.left = left + scrollLeft + 'px';
     popup.style.top = top + scrollTop + 'px';
