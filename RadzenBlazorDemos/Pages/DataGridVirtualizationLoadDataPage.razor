@@ -39,27 +39,41 @@
 @code {
     EventConsole console;
 
+    IEnumerable<OrderDetail> allData;
     int count;
     IEnumerable<OrderDetail> orderDetails;
 
+    protected override void OnInitialized()
+    {
+        allData = Enumerable.Range(1, 700000)
+                                 .Select(x =>
+                                    new OrderDetail { OrderID = x, ProductID = x+1 })
+                                 .ToList();
+        count = allData.Count();
+    }
+
+
     void LoadData(LoadDataArgs args)
     {
-        console.Log($"Skip: {args.Skip}, Top: {args.Top}");
+        Console.WriteLine($"Skip: {args.Skip}, Top: {args.Top}");
 
-        var query = dbContext.OrderDetails.AsQueryable();
+        //var query = dbContext.OrderDetails.AsQueryable();
 
-        if (!string.IsNullOrEmpty(args.Filter))
-        {
-            query = query.Where(args.Filter);
-        }
+        //if (!string.IsNullOrEmpty(args.Filter))
+        //{
+        //    query = query.Where(args.Filter);
+        //}
 
-        if (!string.IsNullOrEmpty(args.OrderBy))
-        {
-            query = query.OrderBy(args.OrderBy);
-        }
+        //if (!string.IsNullOrEmpty(args.OrderBy))
+        //{
+        //    query = query.OrderBy(args.OrderBy);
+        //}
 
-        orderDetails = query.Skip(args.Skip.Value).Take(args.Top.Value).ToList();
+        //orderDetails = query.Skip(args.Skip.Value).Take(args.Top.Value).ToList();
 
-        count = dbContext.OrderDetails.Count();
+        //count = dbContext.OrderDetails.Count();
+
+        orderDetails = allData.Skip(args.Skip.Value).Take(args.Top.Value).ToList();
+        count = allData.Count();
     }
 }

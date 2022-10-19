@@ -61,7 +61,7 @@ namespace Radzen.Blazor
             {
                 top = PageSize;
             }
-
+            Console.WriteLine($"{request.Count}/{PageSize}");
             await InvokeLoadData(request.StartIndex, top);
             
             var totalItemsCount = LoadData.HasDelegate ? Count : view.Count();
